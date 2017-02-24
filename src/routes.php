@@ -3,7 +3,7 @@
 
 use Harvest\Model\Range;
 
-$app->get('/time', function ($request, $response, $args) {
+$app->get('/time[/{department}]', function ($request, $response, $args) {
     $time = array(
       'hours' => 0,
       'client' => array('hours' => 0, 'percentage' => 0),
@@ -17,14 +17,15 @@ $app->get('/time', function ($request, $response, $args) {
     $users = $this->harvest->getUsers()->get('data');
     $projects = $this->harvest->getProjects()->get('data');
     $tasks = $this->harvest->getTasks()->get('data');
-
+    $requested_department = isset($args['department']) ? $args['department'] : FALSE;
     $settings = $this->get('settings')['harvest'];
 
     foreach ($users as $user) {
         $active = $user->get('is-active') === 'true';
         $contractor = $user->get('is-contractor') === 'true';
+        $in_requested_department = $requested_department ? (strtolower($requested_department) == strtolower(str_replace(' ', '-', $user->get('department')))) : TRUE;
 
-        if ($active && !$contractor) {
+        if ($active && !$contractor && $in_requested_department) {
             $entries = $this->harvest->getUserEntries($user->get('id'), $range)->get('data');
             foreach ($entries as $entry) {
                 $project_id = $entry->get('project-id');
