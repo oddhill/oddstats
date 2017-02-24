@@ -44,10 +44,12 @@ $app->get('/time', function ($request, $response, $args) {
         }
     }
 
-    $time['client']['percentage'] = round(($time['client']['hours'] / $time['hours']) * 100);
-    $time['internal']['percentage'] = round(($time['internal']['hours'] / $time['hours']) * 100);
-    $time['billable']['percentage'] = round(($time['billable']['hours'] / $time['hours']) * 100);
-    $time['nonBillable']['percentage'] = round(($time['nonBillable']['hours'] / $time['hours']) * 100);
+    if ($time['hours']) {
+      $time['client']['percentage'] = round(($time['client']['hours'] / $time['hours']) * 100);
+      $time['internal']['percentage'] = round(($time['internal']['hours'] / $time['hours']) * 100);
+      $time['billable']['percentage'] = round(($time['billable']['hours'] / $time['hours']) * 100);
+      $time['nonBillable']['percentage'] = round(($time['nonBillable']['hours'] / $time['hours']) * 100);
+    }
 
     return $response->withJson($time);
 });
