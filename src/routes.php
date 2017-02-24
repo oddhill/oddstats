@@ -52,5 +52,35 @@ $app->get('/time[/{department}]', function ($request, $response, $args) {
       $time['nonBillable']['percentage'] = round(($time['nonBillable']['hours'] / $time['hours']) * 100);
     }
 
+    if ($slack_settings = $this->get('settings')['slack']) {
+      $department = $requested_department ? str_replace('-', ' ', $requested_department) . 's' : 'the entire company';
+      $start = date('j/n', strtotime($from));
+      $end = date('j/n', strtotime($to));
+      $text = "Metrics for $department between $start - $end:\n";
+      $text .= "Client occupancy: {$time['client']['percentage']}%\n";
+      $text .= "Billable rate: {$time['billable']['percentage']}%\n";
+
+      $data = array('text' => $text);
+      if ($slack_settings['channel']) {
+        $data['channel'] = $slack_settings['channel'];
+      }
+      if ($slack_settings['username']) {
+        $data['username'] = $slack_settings['username'];
+      }
+      if ($slack_settings['icon_url']) {
+        $data['icon_url'] = $slack_settings['icon_url'];
+      }
+      elseif ($slack_settings['icon_emoji']) {
+        $data['icon_emoji'] = $slack_settings['icon_emoji'];
+      }
+
+      $ch = curl_init($slack_settings['webhook_url']);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, 'payload=' . json_encode($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      $result = curl_exec($ch);
+      curl_close($ch);
+    }
+
     return $response->withJson($time);
 });

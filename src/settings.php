@@ -30,5 +30,14 @@ return [
                 'projects' => explode(',', getenv('HARVEST_INTERNAL_PROJECTS')),
             ],
         ],
+
+        // Slack integration
+        'slack' => [
+          'webhook_url' => getenv('SLACK_WEBHOOK_URL'),
+          'channel' => getenv('SLACK_WEBHOOK_CHANNEL'),
+          'username' => getenv('SLACK_WEBHOOK_USERNAME'),
+          'icon_url' => getenv('SLACK_WEBHOOK_ICON_URL'),
+          'icon_emoji' => getenv('SLACK_WEBHOOK_ICON_EMOJI'),
+        ],
     ],
 ];
