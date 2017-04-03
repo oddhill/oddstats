@@ -27,3 +27,20 @@ $container['harvest'] = function ($c) {
     $api->setPassword($settings['password']);
     return $api;
 };
+
+// Wrapper for the Jira API.
+$container['jira'] = function ($c) {
+    $settings = $c->get('settings')['jira'];
+    $api = [];
+    $api['account'] = [];
+    $api['account']->setAccount($settings['jira_host']);
+    $api['account']->setUser($settings['user']);
+    $api['account']->setPassword($settings['password']);
+
+    $api['projects'] = new ProjectService();
+    $projects = $api['projects']->getAllProjects();
+    foreach ($projects as $project) {
+       $api['projects'] = $projects;
+    }
+    return $api;
+};
