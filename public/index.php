@@ -42,8 +42,12 @@ require __DIR__ . '/../src/dependencies.php';
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
 
-// Register routes
-require __DIR__ . '/../src/routes.php';
+// Register routes based on the resources
+foreach ($resources as $resource) {
+  $app->group($resource->path, function () use ($resource) {
+    $resource->routes($this);
+  });
+}
 
 // Run app
 $app->run();
