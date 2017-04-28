@@ -39,8 +39,8 @@ require __DIR__ . '/../src/middleware.php';
 
 // Register routes based on the resources
 foreach ($resources as $resource) {
-  $app->group($resource->path, function () use ($resource) {
-    $resource->routes($this);
+  $app->group($resource->getPath(), function () use ($resource) {
+    $resource->routes();
   });
 }
 
