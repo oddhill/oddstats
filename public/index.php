@@ -27,7 +27,14 @@ foreach (new DirectoryIterator(__DIR__ . '/../src/Resources') as $resource) {
   if ($resource->isDir() && !$resource->isDot()) {
     $resource = $resource->getFilename();
     $class = "\OddStats\Resources\\$resource\\$resource";
-    $resources[$resource] = new $class($app);
+    $object = new $class($app);
+
+    // Validate the base class before adding the resource.
+    if (get_parent_class($object) != 'OddStats\Resources\ResourceBase') {
+      trigger_error("$class must be an instance of OddStats\Resources\ResourceBase", E_USER_ERROR);
+    }
+
+    $resources[$resource] = $object;
   }
 }
 
