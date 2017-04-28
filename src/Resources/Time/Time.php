@@ -4,6 +4,9 @@ namespace OddStats\Resources\Time;
 
 use OddStats\Resources\ResourceBase;
 
+/**
+ * Time resource class.
+ */
 class Time extends ResourceBase {
 
   private $account;
@@ -18,6 +21,9 @@ class Time extends ResourceBase {
     'projects' => [],
   ];
 
+  /**
+   * {@inheritdoc}
+   */
   function __construct(\Slim\app $app) {
     parent::__construct($app);
 
