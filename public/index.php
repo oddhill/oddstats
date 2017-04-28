@@ -25,14 +25,9 @@ $app = new \Slim\App($settings);
 $resources = [];
 foreach (new DirectoryIterator(__DIR__ . '/../src/Resources') as $resource) {
   if ($resource->isDir() && !$resource->isDot()) {
-    $resource_name = $resource->getFilename();
-    $class_file = $resource->getPathname() . "/$resource_name.php";
-
-    if (file_exists($class_file)) {
-      require $class_file;
-      $class = "\OddStats\Resources\\$resource_name\\$resource_name";
-      $resources[$resource_name] = new $class($app);
-    }
+    $resource = $resource->getFilename();
+    $class = "\OddStats\Resources\\$resource\\$resource";
+    $resources[$resource] = new $class($app);
   }
 }
 
