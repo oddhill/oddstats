@@ -30,17 +30,14 @@ $container['harvest'] = function ($c) {
 
 // Wrapper for the Jira API.
 $container['jira'] = function ($c) {
-    $settings = $c->get('settings')['jira'];
-    $api = [];
-    $api['account'] = [];
-    $api['account']->setAccount($settings['jira_host']);
-    $api['account']->setUser($settings['user']);
-    $api['account']->setPassword($settings['password']);
+  $settings = $c->get('settings')['jira'];
 
-    $api['projects'] = new ProjectService();
-    $projects = $api['projects']->getAllProjects();
-    foreach ($projects as $project) {
-       $api['projects'] = $projects;
-    }
-    return $api;
+
+  $api = new\JiraRestApi\Issue\IssueService(new \JiraRestApi\Configuration\ArrayConfiguration([
+    'jiraHost' => $settings['jira_host'],
+    'jiraUser' => $settings['user'],
+    'jiraPassword' => $settings['password'],
+  ]));
+  //return $api->get('12000');
+  return $api;
 };

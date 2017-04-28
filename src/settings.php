@@ -39,10 +39,11 @@ return [
           'icon_url' => getenv('SLACK_WEBHOOK_ICON_URL'),
           'icon_emoji' => getenv('SLACK_WEBHOOK_ICON_EMOJI'),
         ],
+        // Jira integration
         'jira' => [
-            'jira_host' => detenv('JIRA_HOST'),
-            'user' => detenv('JIRA_USER'),
-            'password' => detenv('JIRA_PASSWORD'),
+            'jira_host' => getenv('JIRA_HOST'),
+            'user' => getenv('JIRA_USER'),
+            'password' => getenv('JIRA_PASSWORD'),
         ],
     ],
 ];

@@ -18,7 +18,8 @@
         "monolog/monolog": "^1.17",
         "gridonic/hapi": "dev-master",
         "vlucas/phpdotenv": "^2.4",
-        "lesstif/php-jira-rest-client": "^1.7.0"
+        "lesstif/php-jira-rest-client": "^1.7.0",
+        "chobie/jira-api-restclient": "^2.0@dev"
     },
     "require-dev": {
         "phpunit/phpunit": ">=4.8 < 6.0"

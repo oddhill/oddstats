@@ -4,8 +4,60 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "f673079e2bbe6aad5a57e7472936c600",
+    "content-hash": "680551e770528c09ea20389635721e26",
     "packages": [
+        {
+            "name": "chobie/jira-api-restclient",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/chobie/jira-api-restclient.git",
+                "reference": "db8c1f095e412b52ef57c27fa4326b681a7e668b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/chobie/jira-api-restclient/zipball/db8c1f095e412b52ef57c27fa4326b681a7e668b",
+                "reference": "db8c1f095e412b52ef57c27fa4326b681a7e668b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "aik099/coding-standard": "dev-master",
+                "phpunit/phpunit": "^4.1|^5.0",
+                "squizlabs/php_codesniffer": "^2.6"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "chobie\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Shuhei Tanuma",
+                    "email": "chobieeee@php.net",
+                    "homepage": "http://chobie.github.io/"
+                }
+            ],
+            "description": "JIRA REST API Client",
+            "keywords": [
+                "api",
+                "jira",
+                "rest"
+            ],
+            "time": "2016-11-16 16:27:27"
+        },
         {
             "name": "container-interop/container-interop",
             "version": "1.1.0",
@@ -1712,7 +1764,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "gridonic/hapi": 20
+        "gridonic/hapi": 20,
+        "chobie/jira-api-restclient": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
