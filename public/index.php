@@ -21,6 +21,21 @@ $dotenv->load();
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new \Slim\App($settings);
 
+// Set up resources
+$resources = [];
+foreach (new DirectoryIterator(__DIR__ . '/../src/Resources') as $resource) {
+  if ($resource->isDir() && !$resource->isDot()) {
+    $resource_name = $resource->getFilename();
+    $class_file = $resource->getPathname() . "/$resource_name.php";
+
+    if (file_exists($class_file)) {
+      require $class_file;
+      $class = "\OddStats\Resources\\$resource_name\\$resource_name";
+      $resources[$resource_name] = new $class($app);
+    }
+  }
+}
+
 // Set up dependencies
 require __DIR__ . '/../src/dependencies.php';
 
