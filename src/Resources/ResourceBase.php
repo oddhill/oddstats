@@ -2,6 +2,10 @@
 
 namespace OddStats\Resources;
 
+use Slim\app;
+use Slim\Http\Request;
+use Slim\Http\Response;
+
 /**
  * Class ResourceBase
  *
@@ -15,7 +19,7 @@ class ResourceBase implements ResourceInterface {
   /**
    * {@inheritdoc}
    */
-  function __construct(\Slim\app $app) {
+  function __construct(app $app) {
     $this->app = $app;
   }
 
@@ -34,9 +38,7 @@ class ResourceBase implements ResourceInterface {
   public function routes() {
     $path = $this->getPath();
 
-    $this->app->get('', function($request, $response, $args) use($path) {
-      /** @var \Slim\Http\Response $response */
-
+    $this->app->get('', function(Request $request, Response $response, $args) use($path) {
       $body = $response->getBody();
       $body->write("$path has been setup. The next step is to implement the routes() method in order to setup your routes.");
       return $response;
