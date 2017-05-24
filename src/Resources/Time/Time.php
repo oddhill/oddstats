@@ -82,12 +82,13 @@ class Time extends ResourceBase {
             $task = $tasks[$task_id];
 
             $client_id = $project->get('client-id');
-            $hours = (float) $entry->get('hours');
             $exclude = in_array($client_id, $resource->exclude['clients']) || in_array($project_id, $resource->exclude['projects']);
-            $internal = in_array($client_id, $resource->internal['clients']) || in_array($project_id, $resource->internal['projects']);
-            $billable = ($project->get('billable') === 'true') && ($task->get('billable-by-default') === 'true');
 
             if (!$exclude) {
+              $hours = (float) $entry->get('hours');
+              $internal = in_array($client_id, $resource->internal['clients']) || in_array($project_id, $resource->internal['projects']);
+              $billable = ($project->get('billable') === 'true') && ($task->get('billable-by-default') === 'true');
+
               $time['hours'] += $hours;
               $internal ? ($time['internal']['hours'] += $hours) : ($time['client']['hours'] += $hours);
               $billable ? ($time['billable']['hours'] += $hours) : ($time['nonBillable']['hours'] += $hours);
