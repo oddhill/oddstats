@@ -17,13 +17,3 @@ $container['logger'] = function ($c) {
     $logger->pushHandler(new Monolog\Handler\StreamHandler($settings['path'], $settings['level']));
     return $logger;
 };
-
-// Wrapper for the Harvest API.
-$container['harvest'] = function ($c) {
-    $settings = $c->get('settings')['harvest'];
-    $api = new Harvest\HarvestReports();
-    $api->setAccount($settings['account']);
-    $api->setUser($settings['user']);
-    $api->setPassword($settings['password']);
-    return $api;
-};
