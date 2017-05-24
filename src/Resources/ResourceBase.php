@@ -38,7 +38,7 @@ class ResourceBase implements ResourceInterface {
       /** @var \Slim\Http\Response $response */
 
       $body = $response->getBody();
-      $body->write("$path has been setup. The next step is to override the routes() method in order to setup your routes.");
+      $body->write("$path has been setup. The next step is to implement the routes() method in order to setup your routes.");
       return $response;
     });
   }
