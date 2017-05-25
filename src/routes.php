@@ -11,7 +11,6 @@ $app->get('/time[/{department}]', function ($request, $response, $args) {
       'billable' => array('hours' => 0, 'percentage' => 0),
       'nonBillable' => array('hours' => 0, 'percentage' => 0),
     );
-
     $from = $request->getQueryParam('from');
     $to = $request->getQueryParam('to', date('Y-m-d'));
     $range = new Range($from, $to);
@@ -20,10 +19,6 @@ $app->get('/time[/{department}]', function ($request, $response, $args) {
     $tasks = $this->harvest->getTasks()->get('data');
     $requested_department = isset($args['department']) ? $args['department'] : FALSE;
     $settings = $this->get('settings')['harvest'];
-
-    if (!is_array($users)) {
-      return $response->withJson($time);
-    }
 
     foreach ($users as $user) {
         $active = $user->get('is-active') === 'true';
@@ -79,17 +74,18 @@ $app->get('/time[/{department}]', function ($request, $response, $args) {
         $data['icon_emoji'] = $slack_settings['icon_emoji'];
       }
 
-      // $ch = curl_init($slack_settings['webhook_url']);
-      // curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-      // curl_setopt($ch, CURLOPT_POSTFIELDS, 'payload=' . json_encode($data));
-      // curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-      // $result = curl_exec($ch);
-      // curl_close($ch);
+      $ch = curl_init($slack_settings['webhook_url']);
+      curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+      curl_setopt($ch, CURLOPT_POSTFIELDS, 'payload=' . json_encode($data));
+      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+      $result = curl_exec($ch);
+      curl_close($ch);
     }
 
     return $response->withJson($time);
 });
 
-$app->get('/jira-api', function($req, $res) {
-  var_dump($this->jira->get('BPS-145'));
+$app->get('/jira-api/projects', function($req, $res) {
+echo '<pre>';
+  print_r($this->jira);
 });

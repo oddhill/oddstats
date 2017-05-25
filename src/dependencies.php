@@ -28,16 +28,16 @@ $container['harvest'] = function ($c) {
     return $api;
 };
 
-// Wrapper for the Jira API.
 $container['jira'] = function ($c) {
-  $settings = $c->get('settings')['jira'];
+  $settings = $c->get('settings');
+  $jira_host = $settings['jira']['jira_host'];
+  $jira_user_id = $settings['jira']['user'];
+  $jira_pass = $settings['jira']['password'];
+
+  $basic_auth = new \OddStats\Resources\Jira\Auth\AuthBasic( $jira_user_id, $jira_pass);
+  $jira_api = new \OddStats\Resources\Jira\Api\Api( $jira_host, $basic_auth);
 
 
-  $api = new\JiraRestApi\Issue\IssueService(new \JiraRestApi\Configuration\ArrayConfiguration([
-    'jiraHost' => $settings['jira_host'],
-    'jiraUser' => $settings['user'],
-    'jiraPassword' => $settings['password'],
-  ]));
-  //return $api->get('12000');
-  return $api;
+  //return $jira_api->api('GET', '/rest/api/2/project');
+  return $jira_api->getIssue('BPS-145');
 };
