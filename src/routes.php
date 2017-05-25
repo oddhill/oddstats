@@ -86,6 +86,6 @@ $app->get('/time[/{department}]', function ($request, $response, $args) {
 });
 
 $app->get('/jira-api/projects', function($req, $res) {
-echo '<pre>';
-  print_r($this->jira);
+
+  printf("<pre>%s</pre>", $this->jira);
 });
