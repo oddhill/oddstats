@@ -7,4 +7,4 @@ composer.*
 CONTRIBUTING.md
 phpunit.xml
 README.md
-tests
+tests/*
