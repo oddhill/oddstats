@@ -2,6 +2,8 @@ machine:
   php:
     version: 7.0.17
 
+# Install git-ftp manually since apt-get doesn't fetch the latest version.
+# Instructions was found at https://github.com/git-ftp/git-ftp/blob/master/INSTALL.md#linuxunix-based-systems-using-make.
 dependencies:
   pre:
     - git clone https://github.com/git-ftp/git-ftp.git
