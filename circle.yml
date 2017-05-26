@@ -19,5 +19,5 @@ deployment:
   production:
     branch: develop
     commands:
-      - git ftp init -u $FTP_USERNAME -p $FTP_PASSWORD ftp://$FTP_HOST:
+      - git ftp push -u $FTP_USERNAME -p $FTP_PASSWORD ftp://$FTP_HOST:
           timeout: 3600
