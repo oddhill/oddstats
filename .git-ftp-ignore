@@ -1,4 +1,6 @@
 .env.default
+.git-ftp-ignore
+.git-ftp-include
 .gitignore
 circle.yml
 composer.*
