@@ -21,14 +21,35 @@ $dotenv->load();
 $settings = require __DIR__ . '/../src/settings.php';
 $app = new \Slim\App($settings);
 
+// Set up resources
+$resources = [];
+foreach (new DirectoryIterator(__DIR__ . '/../src/Resources') as $resource) {
+  if ($resource->isDir() && !$resource->isDot()) {
+    $resource = $resource->getFilename();
+    $class = "\OddStats\Resources\\$resource\\$resource";
+    $object = new $class($app);
+
+    // Validate the base class before adding the resource.
+    if (get_parent_class($object) != 'OddStats\Resources\ResourceBase') {
+      trigger_error("$class must be an instance of OddStats\Resources\ResourceBase", E_USER_ERROR);
+    }
+
+    $resources[$resource] = $object;
+  }
+}
+
 // Set up dependencies
 require __DIR__ . '/../src/dependencies.php';
 
 // Register middleware
 require __DIR__ . '/../src/middleware.php';
 
-// Register routes
-require __DIR__ . '/../src/routes.php';
+// Register routes based on the resources
+foreach ($resources as $resource) {
+  $app->group($resource->getPath(), function () use ($resource) {
+    $resource->routes();
+  });
+}
 
 // Run app
 $app->run();
