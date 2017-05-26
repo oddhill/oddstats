@@ -1,0 +1,18 @@
+machine:
+  php:
+    version: 7.1.3
+
+dependencies:
+  pre:
+    - sudo apt-get update
+    - sudo apt-get install git-ftp
+
+test:
+  override:
+    - echo "Testing hasn't been implemented yet"
+
+deployment:
+  production:
+    branch: develop
+    commands:
+      - git ftp init -u $FTP_USERNAME -p $FTP_PASSWORD ftp://plesk01.swebby.se/oddstats.se/
