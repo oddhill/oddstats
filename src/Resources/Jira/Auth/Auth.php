@@ -10,6 +10,7 @@ class Auth
 
   /**
    * Auth constructor.
+   *
    * @param string $user_id
    * @param string $password
    */
@@ -21,6 +22,7 @@ class Auth
 
   /**
    * Return user id.
+   *
    * @return string
    */
   public function getUserId()
@@ -30,6 +32,7 @@ class Auth
 
   /**
    * Return password.
+   *
    * @return string
    */
   public function getUserPass()

@@ -6,6 +6,16 @@ use OddStats\Resources\Jira\Auth\AuthBasic;
 
 class JiraRequest implements RequestInterface
 {
+  /**
+   * Jira Request.
+   *
+   * @param   string $endpoint  Endpoint
+   * @param   string $url   URL
+   * @param   object|\OddStats\Resources\Jira\Auth\Auth   $auth   Authentication object
+   * @param   string  $method Method
+   * @param   array $data Data
+   * @return  mixed
+   */
   public function jRequest($endpoint, $url, Auth $auth, $method, $data = array())
   {
     if (!($auth instanceof AuthBasic)) {

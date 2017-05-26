@@ -66,25 +66,42 @@ class Api
   public function api($method = self::REQ_GET, $url, $data = array())
   {
     $result = $this->client->jRequest( $this->getEndpoint(), $url, $this->auth, $method);
-    return $json = json_encode(json_decode($result, TRUE));
+    return json_decode($result);
   }
 
+  /**
+   * Get a specific issue
+   * @param string    $issue_key    Issue key.
+   * @return string
+   */
   public function getIssue($issue_key)
   {
     return $this->api( self::REQ_GET, sprintf('/rest/api/2/issue/%s', $issue_key));
   }
 
+  /**
+   * Listing all projects
+   * @return string
+   */
   public function getProjects()
   {
     return $this->api( self::REQ_GET, '/rest/api/2/project');
   }
 
+  /**
+   * Get a specific project
+   *
+   * @param string $project_key Project key
+   * @return string
+   */
   public function getProject($project_key)
   {
     return $this->api( self::REQ_GET, sprintf('/rest/api/2/project/%s', $project_key), array(), true);
   }
 
   /**
+   * Get the Endpoint.
+   *
    * @return string
    */
   public function getEndpoint()
