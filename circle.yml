@@ -4,10 +4,10 @@ machine:
 
 dependencies:
   pre:
-    - git clone https://github.com/git-ftp/git-ftp.git && cd git-ftp
-    - LATEST_VERSION="$(git tag | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | tail -1)"
-    - git checkout "$LATEST_VERSION"
-    - sudo make install
+    - git clone https://github.com/git-ftp/git-ftp.git
+    - cd git-ftp && LATEST_VERSION="$(git tag | grep '^[0-9]*\.[0-9]*\.[0-9]*$' | tail -1)"
+    - cd git-ftp && git checkout "$LATEST_VERSION"
+    - cd git-ftp && sudo make install
 
 test:
   override:
