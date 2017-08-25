@@ -27,5 +27,5 @@ $container['jira'] = function ($c) {
 
 
   //return $jira_api->api('GET', '/rest/api/2/project');
-  return $jira_api->getIssue('BPS-145');
+  return $jira_api;
 };

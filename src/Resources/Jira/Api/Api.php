@@ -29,6 +29,8 @@ class Api
    */
   protected $auth;
 
+  protected $done;
+
   /**
    * Create a JIRA API connection.
    * @param string    $endpoint   Endpoint URL
@@ -80,12 +82,73 @@ class Api
   }
 
   /**
+   * Returning all issues
+   *
+   * @return array
+   */
+  public function getAllIssue()
+  {
+   foreach ($this->getProjectIds() as $key) {
+     $issues[] = $this->issueStatus($key);
+   }
+   return $issues;
+  }
+
+  /**
+   * Returning all issues of a specific project
+   *
+   * @param $project_key
+   * @return string
+   */
+  public function getProjctIssue($project_key)
+  {
+    return $this->issueStatus($project_key);
+  }
+
+  /**
+   * Returning all done issues of a specific project
+   *
+   * @param $project_key
+   * @return string
+   */
+  public function getDoneIssues($project_key)
+  {
+    return $this->doneIssue($project_key);
+  }
+
+  /**
+   * Returning all issues that are not dene
+   * of a specific project
+   *
+   * @param $project_key
+   * @return string
+   */
+  public function getNotDoneIssues($project_key)
+  {
+    return $this->NotDoneIssue($project_key);
+  }
+
+  /**
    * Listing all projects
+   *
    * @return string
    */
   public function getProjects()
   {
     return $this->api( self::REQ_GET, '/rest/api/2/project');
+  }
+
+  public function getDoneThisWeek()
+  {
+    $term = ["Done", "Resolved"];
+    foreach ($this->getProjectIds() as $key) {
+      foreach ($this->issueStatus($key) as $issue) {
+        if (in_array($issue['status'], $term)) {
+          $doen[] = $issue;
+        }
+      }
+    }
+    return $doen;
   }
 
   /**
@@ -107,5 +170,83 @@ class Api
   public function getEndpoint()
   {
     return $this->endpoint;
+  }
+
+  /**
+   * Returning array of projects id
+   *
+   * @return array
+   */
+  protected function getProjectIds()
+  {
+    foreach ($this->getProjects() as  $project_key) {
+      $keys[] = $project_key->key;
+    }
+    return $keys;
+  }
+
+  /**
+   * Returning all issue of a project
+   *
+   * @param $project_key
+   * @return array
+   */
+  protected function issueStatus($project_key)
+  {
+    return date( 'W');
+    $issues = $this->api( self::REQ_GET, sprintf('/rest/api/2/search?jql=project="%s"', $project_key), array(), true)->issues;
+    foreach ($issues as $issue) {
+      $status[] = [
+        "project_name" => $issue->fields->project->name,
+        "projectKey" => $issue->fields->project->key,
+        "self" => $issue->self,
+        "issue_key" => $issue->key,
+        "issueId" => $issue->id,
+        "priority" => $issue->fields->priority->name,
+        "issueType" => $issue->fields->issuetype->name,
+        "status" => $issue->fields->status->name,
+        "creator" => $issue->fields->creator->displayName,
+        "created" => $issue->fields->created,
+        "updated" => $issue->fields->updated,
+        "assigneeName" => $issue->fields->assignee->displayName,
+        "assigneeEmail" => $issue->fields->assignee->emailAddress,
+        "updatedAtweekNo." => date( 'W', strtotime( $issue->fields->updated )),
+      ];
+    }
+    return $status;
+  }
+
+  /**
+   * Returning done issues
+   *
+   * @param $project_key
+   * @return array
+   */
+  protected function doneIssue($project_key)
+  {
+    $term = ["Done", "Resolved"];
+    foreach ($this->issueStatus($project_key) as $issue) {
+      if (in_array($issue['status'], $term)) {
+        $done[] = $issue;
+      }
+    }
+    return $done;
+  }
+
+  /**
+   * Returning to be done issues
+   *
+   * @param $project_key
+   * @return array
+   */
+  protected function notDoneIssue($project_key)
+  {
+    $term = ["Done", "Resolved"];
+    foreach ($this->issueStatus($project_key) as $issue) {
+      if (!in_array($issue['status'], $term)) {
+        $to_bo_done[] = $issue;
+      }
+    }
+    return $to_bo_done;
   }
 }
