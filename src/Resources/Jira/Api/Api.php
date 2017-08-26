@@ -31,6 +31,8 @@ class Api
 
   protected $done;
 
+  protected $term = ["Done", "Resolved"];
+
   /**
    * Create a JIRA API connection.
    * @param string    $endpoint   Endpoint URL
@@ -78,7 +80,8 @@ class Api
    */
   public function getIssue($issue_key)
   {
-    return $this->api( self::REQ_GET, sprintf('/rest/api/2/issue/%s', $issue_key));
+    $issue =  $this->api( self::REQ_GET, sprintf('/rest/api/2/issue/%s', $issue_key));
+    return $this->issueDetails($issue);
   }
 
   /**
@@ -140,10 +143,9 @@ class Api
 
   public function getDoneThisWeek()
   {
-    $term = ["Done", "Resolved"];
     foreach ($this->getProjectIds() as $key) {
       foreach ($this->issueStatus($key) as $issue) {
-        if (in_array($issue['status'], $term)) {
+        if (in_array($issue['status'], $this->term) && $issue["updatedAtweekNo"] == (date( 'W') -1)) {
           $doen[] = $issue;
         }
       }
@@ -193,25 +195,9 @@ class Api
    */
   protected function issueStatus($project_key)
   {
-    return date( 'W');
     $issues = $this->api( self::REQ_GET, sprintf('/rest/api/2/search?jql=project="%s"', $project_key), array(), true)->issues;
     foreach ($issues as $issue) {
-      $status[] = [
-        "project_name" => $issue->fields->project->name,
-        "projectKey" => $issue->fields->project->key,
-        "self" => $issue->self,
-        "issue_key" => $issue->key,
-        "issueId" => $issue->id,
-        "priority" => $issue->fields->priority->name,
-        "issueType" => $issue->fields->issuetype->name,
-        "status" => $issue->fields->status->name,
-        "creator" => $issue->fields->creator->displayName,
-        "created" => $issue->fields->created,
-        "updated" => $issue->fields->updated,
-        "assigneeName" => $issue->fields->assignee->displayName,
-        "assigneeEmail" => $issue->fields->assignee->emailAddress,
-        "updatedAtweekNo." => date( 'W', strtotime( $issue->fields->updated )),
-      ];
+      $status[] = $this->issueDetails($issue);
     }
     return $status;
   }
@@ -224,9 +210,8 @@ class Api
    */
   protected function doneIssue($project_key)
   {
-    $term = ["Done", "Resolved"];
     foreach ($this->issueStatus($project_key) as $issue) {
-      if (in_array($issue['status'], $term)) {
+      if (in_array($issue['status'], $this->term)) {
         $done[] = $issue;
       }
     }
@@ -241,12 +226,37 @@ class Api
    */
   protected function notDoneIssue($project_key)
   {
-    $term = ["Done", "Resolved"];
     foreach ($this->issueStatus($project_key) as $issue) {
-      if (!in_array($issue['status'], $term)) {
+      if (!in_array($issue['status'], $this->term)) {
         $to_bo_done[] = $issue;
       }
     }
     return $to_bo_done;
+  }
+
+  /**
+   * @param $issue
+   *
+   * @return array
+   */
+  protected function issueDetails($issue)
+  {
+    return $issue = [
+      "project_name" => $issue->fields->project->name,
+      "projectKey" => $issue->fields->project->key,
+      "self" => $issue->self,
+      "description" => $issue->fields->issuetype->description,
+      "issue_key" => $issue->key,
+      "issueId" => $issue->id,
+      "priority" => $issue->fields->priority->name,
+      "issueType" => $issue->fields->issuetype->name,
+      "status" => $issue->fields->status->name,
+      "creator" => $issue->fields->creator->displayName,
+      "created" => $issue->fields->created,
+      "updated" => $issue->fields->updated,
+      "assigneeName" => $issue->fields->assignee->displayName,
+      "assigneeEmail" => $issue->fields->assignee->emailAddress,
+      "updatedAtweekNo" => date( 'W', strtotime( $issue->fields->updated )),
+    ];
   }
 }
