@@ -46,7 +46,7 @@ class Time extends ResourceBase {
   public function routes() {
     $resource = $this;
 
-    $this->app->get('[/{department}]', function (Request $request, Response $response, $args) use($resource) {
+    $this->app->get('[/{role}]', function (Request $request, Response $response, $args) use($resource) {
       $time = array(
         'hours' => 0,
         'client' => array('hours' => 0, 'percentage' => 0),
@@ -60,15 +60,28 @@ class Time extends ResourceBase {
       $users = $resource->harvest->getUsers()->get('data');
       $projects = $resource->harvest->getProjects()->get('data');
       $tasks = $resource->harvest->getTasks()->get('data');
-      $requested_department = isset($args['department']) ? $args['department'] : FALSE;
+      $requested_role = isset($args['role']) ? $args['role'] : FALSE;
 
       /** @var \Harvest\Model\User $user */
       foreach ($users as $user) {
         $active = $user->get('is-active') === 'true';
         $contractor = $user->get('is-contractor') === 'true';
-        $in_requested_department = $requested_department ? (strtolower($requested_department) == strtolower(str_replace(' ', '-', $user->get('department')))) : TRUE;
+        $roles = preg_split("/\r\n|\n|\r/", $user->get('roles'));
 
-        if ($active && !$contractor && $in_requested_department) {
+        $in_requested_role = FALSE;
+        if ($requested_role) {
+          foreach ($roles as $role) {
+            if ($requested_role === strtolower(str_replace(' ', '-', trim($role)))) {
+              $in_requested_role = TRUE;
+              break;
+            }
+          }
+        }
+        else {
+          $in_requested_role = TRUE;
+        }
+
+        if ($active && !$contractor && $in_requested_role) {
           $entries = $resource->harvest->getUserEntries($user->get('id'), $range)->get('data');
 
           /** @var \Harvest\Model\DayEntry $entry */
