@@ -36,6 +36,7 @@ class Time extends ResourceBase {
     $this->harvest->setPassword(getenv('HARVEST_PASSWORD'));
     $this->exclude['clients'] = explode(',', getenv('HARVEST_EXCLUDE_CLIENTS'));
     $this->exclude['projects'] = explode(',', getenv('HARVEST_EXCLUDE_PROJECTS'));
+    $this->exclude['roles'] = explode(',', getenv('HARVEST_EXCLUDE_ROLES'));
     $this->internal['clients'] = explode(',', getenv('HARVEST_INTERNAL_CLIENTS'));
     $this->internal['projects'] = explode(',', getenv('HARVEST_INTERNAL_PROJECTS'));
   }
@@ -68,6 +69,16 @@ class Time extends ResourceBase {
         $contractor = $user->get('is-contractor') === 'true';
         $roles = preg_split("/\r\n|\n|\r/", $user->get('roles'));
 
+        $exclude_user = FALSE;
+        foreach ($resource->exclude['roles'] as $exclude_role) {
+          foreach ($roles as $role) {
+            if (strtolower(str_replace(' ', '-', trim($role))) === $exclude_role) {
+              $exclude_user = TRUE;
+              break 2;
+            }
+          }
+        }
+
         $in_requested_role = FALSE;
         if ($requested_role) {
           foreach ($roles as $role) {
@@ -81,7 +92,7 @@ class Time extends ResourceBase {
           $in_requested_role = TRUE;
         }
 
-        if ($active && !$contractor && $in_requested_role) {
+        if ($active && !$contractor && $in_requested_role && !$exclude_user) {
           $entries = $resource->harvest->getUserEntries($user->get('id'), $range)->get('data');
 
           /** @var \Harvest\Model\DayEntry $entry */
