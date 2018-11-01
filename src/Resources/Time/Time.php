@@ -58,10 +58,15 @@ class Time extends ResourceBase {
       $from = $request->getQueryParam('from');
       $to = $request->getQueryParam('to', date('Y-m-d'));
       $range = new Range($from, $to);
+      $detailed = (bool) $request->getQueryParam('detailed');
       $users = $resource->harvest->getUsers()->get('data');
       $projects = $resource->harvest->getProjects()->get('data');
       $tasks = $resource->harvest->getTasks()->get('data');
       $requested_role = isset($args['role']) ? $args['role'] : FALSE;
+
+      if ($detailed) {
+        $time['detailed'] = array();
+      }
 
       /** @var \Harvest\Model\User $user */
       foreach ($users as $user) {
@@ -95,6 +100,17 @@ class Time extends ResourceBase {
         if ($active && !$contractor && $in_requested_role && !$exclude_user) {
           $entries = $resource->harvest->getUserEntries($user->get('id'), $range)->get('data');
 
+          if ($detailed) {
+            $name = $user->get('first-name') . ' ' . $user->get('last-name');
+            $time['detailed'][$name] = array(
+              'hours' => 0,
+              'client' => array('hours' => 0, 'percentage' => 0),
+              'internal' => array('hours' => 0, 'percentage' => 0),
+              'billable' => array('hours' => 0, 'percentage' => 0),
+              'nonBillable' => array('hours' => 0, 'percentage' => 0),
+            );
+          }
+
           /** @var \Harvest\Model\DayEntry $entry */
           foreach ($entries as $entry) {
             /** @var \Harvest\Model\Project $project */
@@ -116,6 +132,12 @@ class Time extends ResourceBase {
               $time['hours'] += $hours;
               $internal ? ($time['internal']['hours'] += $hours) : ($time['client']['hours'] += $hours);
               $billable ? ($time['billable']['hours'] += $hours) : ($time['nonBillable']['hours'] += $hours);
+
+              if ($detailed) {
+                $time['detailed'][$name]['hours'] += $hours;
+                $internal ? ($time['detailed'][$name]['internal']['hours'] += $hours) : ($time['detailed'][$name]['client']['hours'] += $hours);
+                $billable ? ($time['detailed'][$name]['billable']['hours'] += $hours) : ($time['detailed'][$name]['nonBillable']['hours'] += $hours);
+              }
             }
           }
         }
@@ -126,6 +148,17 @@ class Time extends ResourceBase {
         $time['internal']['percentage'] = round(($time['internal']['hours'] / $time['hours']) * 100);
         $time['billable']['percentage'] = round(($time['billable']['hours'] / $time['hours']) * 100);
         $time['nonBillable']['percentage'] = round(($time['nonBillable']['hours'] / $time['hours']) * 100);
+
+        if (isset($time['detailed'])) {
+          foreach ($time['detailed'] as $user => &$data) {
+            if ($data['hours']) {
+              $data['client']['percentage'] = round(($data['client']['hours'] / $data['hours']) * 100);
+              $data['internal']['percentage'] = round(($data['internal']['hours'] / $data['hours']) * 100);
+              $data['billable']['percentage'] = round(($data['billable']['hours'] / $data['hours']) * 100);
+              $data['nonBillable']['percentage'] = round(($data['nonBillable']['hours'] / $data['hours']) * 100);
+            }
+          }
+        }
       }
 
       return $response->withJson($time);
