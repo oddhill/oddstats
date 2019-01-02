@@ -39,6 +39,8 @@ class Time extends ResourceBase {
     $this->exclude['roles'] = explode(',', getenv('HARVEST_EXCLUDE_ROLES'));
     $this->internal['clients'] = explode(',', getenv('HARVEST_INTERNAL_CLIENTS'));
     $this->internal['projects'] = explode(',', getenv('HARVEST_INTERNAL_PROJECTS'));
+    $this->misc['clients'] = explode(',', getenv('HARVEST_MISC_CLIENTS'));
+    $this->misc['projects'] = explode(',', getenv('HARVEST_MISC_PROJECTS'));
   }
 
   /**
@@ -50,8 +52,12 @@ class Time extends ResourceBase {
     $this->app->get('[/{role}]', function (Request $request, Response $response, $args) use($resource) {
       $time = array(
         'hours' => 0,
-        'client' => array('hours' => 0, 'percentage' => 0),
-        'internal' => array('hours' => 0, 'percentage' => 0),
+        'projects' => array(
+          'total' => array('hours' => 0, 'percentage' => 0),
+          'client' => array('hours' => 0, 'percentage' => 0),
+          'internal' => array('hours' => 0, 'percentage' => 0),
+        ),
+        'misc' => array('hours' => 0, 'percentage' => 0),
         'billable' => array('hours' => 0, 'percentage' => 0),
         'nonBillable' => array('hours' => 0, 'percentage' => 0),
       );
@@ -104,8 +110,12 @@ class Time extends ResourceBase {
             $name = $user->get('first-name') . ' ' . $user->get('last-name');
             $time['detailed'][$name] = array(
               'hours' => 0,
-              'client' => array('hours' => 0, 'percentage' => 0),
-              'internal' => array('hours' => 0, 'percentage' => 0),
+              'projects' => array(
+                'total' => array('hours' => 0, 'percentage' => 0),
+                'client' => array('hours' => 0, 'percentage' => 0),
+                'internal' => array('hours' => 0, 'percentage' => 0),
+              ),
+              'misc' => array('hours' => 0, 'percentage' => 0),
               'billable' => array('hours' => 0, 'percentage' => 0),
               'nonBillable' => array('hours' => 0, 'percentage' => 0),
             );
@@ -126,17 +136,24 @@ class Time extends ResourceBase {
 
             if (!$exclude) {
               $hours = (float) $entry->get('hours');
-              $internal = in_array($client_id, $resource->internal['clients']) || in_array($project_id, $resource->internal['projects']);
-              $billable = !$internal && ($project->get('billable') === 'true') && ($task->get('billable-by-default') === 'true');
+              $is_project = !in_array($client_id, $resource->misc['clients']) && !in_array($project_id, $resource->misc['projects']);
+              $is_internal = in_array($client_id, $resource->internal['clients']) || in_array($project_id, $resource->internal['projects']);
+              $is_billable = !$is_internal && ($project->get('billable') === 'true') && ($task->get('billable-by-default') === 'true');
 
               $time['hours'] += $hours;
-              $internal ? ($time['internal']['hours'] += $hours) : ($time['client']['hours'] += $hours);
-              $billable ? ($time['billable']['hours'] += $hours) : ($time['nonBillable']['hours'] += $hours);
+              $is_project ? ($time['projects']['total']['hours'] += $hours) : ($time['misc']['hours'] += $hours);
+              $is_billable ? ($time['billable']['hours'] += $hours) : ($time['nonBillable']['hours'] += $hours);
+              if ($is_project) {
+                $is_internal ? ($time['projects']['internal']['hours'] += $hours) : ($time['projects']['client']['hours'] += $hours);
+              }
 
               if ($detailed) {
                 $time['detailed'][$name]['hours'] += $hours;
-                $internal ? ($time['detailed'][$name]['internal']['hours'] += $hours) : ($time['detailed'][$name]['client']['hours'] += $hours);
-                $billable ? ($time['detailed'][$name]['billable']['hours'] += $hours) : ($time['detailed'][$name]['nonBillable']['hours'] += $hours);
+                $is_project ? ($time['detailed'][$name]['projects']['total']['hours'] += $hours) : ($time['detailed'][$name]['misc']['hours'] += $hours);
+                $is_billable ? ($time['detailed'][$name]['billable']['hours'] += $hours) : ($time['detailed'][$name]['nonBillable']['hours'] += $hours);
+                if ($is_project) {
+                  $is_internal ? ($time['detailed'][$name]['projects']['internal']['hours'] += $hours) : ($time['detailed'][$name]['projects']['client']['hours'] += $hours);
+                }
               }
             }
           }
@@ -144,16 +161,24 @@ class Time extends ResourceBase {
       }
 
       if ($time['hours']) {
-        $time['client']['percentage'] = round(($time['client']['hours'] / $time['hours']) * 100);
-        $time['internal']['percentage'] = round(($time['internal']['hours'] / $time['hours']) * 100);
+        if ($time['projects']['total']['hours']) {
+          $time['projects']['total']['percentage'] = round(($time['projects']['total']['hours'] / $time['hours']) * 100);
+          $time['projects']['client']['percentage'] = round(($time['projects']['client']['hours'] / $time['hours']) * 100);
+          $time['projects']['internal']['percentage'] = round(($time['projects']['internal']['hours'] / $time['hours']) * 100);
+        }
+        $time['misc']['percentage'] = round(($time['misc']['hours'] / $time['hours']) * 100);
         $time['billable']['percentage'] = round(($time['billable']['hours'] / $time['hours']) * 100);
         $time['nonBillable']['percentage'] = round(($time['nonBillable']['hours'] / $time['hours']) * 100);
 
         if (isset($time['detailed'])) {
           foreach ($time['detailed'] as $user => &$data) {
             if ($data['hours']) {
-              $data['client']['percentage'] = round(($data['client']['hours'] / $data['hours']) * 100);
-              $data['internal']['percentage'] = round(($data['internal']['hours'] / $data['hours']) * 100);
+              if ($data['projects']['total']['hours']) {
+                $data['projects']['total']['percentage'] = round(($data['projects']['total']['hours'] / $data['hours']) * 100);
+                $data['projects']['client']['percentage'] = round(($data['projects']['client']['hours'] / $data['hours']) * 100);
+                $data['projects']['internal']['percentage'] = round(($data['projects']['internal']['hours'] / $data['hours']) * 100);
+              }
+              $data['misc']['percentage'] = round(($data['misc']['hours'] / $data['hours']) * 100);
               $data['billable']['percentage'] = round(($data['billable']['hours'] / $data['hours']) * 100);
               $data['nonBillable']['percentage'] = round(($data['nonBillable']['hours'] / $data['hours']) * 100);
             }
